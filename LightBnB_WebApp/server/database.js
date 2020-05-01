@@ -23,9 +23,9 @@ const getUserWithEmail = function (email) {
   // console.log("queryString for getUserwithEmail:", queryString);
   return pool
     .query(queryString, [email])
-    .then((res) => {
+    .then((res) => res.rows[0])
       // console.log(res.rows[0]);
-      res.rows[0]})
+      
     .catch((err) => console.error(err));
 };
 exports.getUserWithEmail = getUserWithEmail;
@@ -43,10 +43,10 @@ const getUserWithId = function (id) {
   // console.log("queryString for getUserwithId:", queryString);
   return pool
     .query(queryString, [id])
-    .then((res) => {
+    .then((res) => res.rows[0]
       // console.log(res.rows[0]);
-      res.rows[0];
-    })
+
+    )
     .catch((err) => console.error(err));
 };
 exports.getUserWithId = getUserWithId;
@@ -62,15 +62,13 @@ const addUser = function async (user) {
   VALUES ($1, $2, $3)  RETURNING *`;
 
   // console.log("queryString: :", queryString);
-
-
   return pool
     .query(queryString, [user.name, user.email, user.password])
-    .then((res) => {
+    .then((res) => 
       // console.log(`addUser: ${res.rows[0]}`);
-      res.rows[0];
-    })
-    .catch((err) => console.error("eror::::", err));
+      res.rows[0]
+    )
+    .catch((err) => console.error("eror:", err));
 };
 
 exports.addUser = addUser;
@@ -83,7 +81,21 @@ exports.addUser = addUser;
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function (guest_id, limit = 10) {
-  return getAllProperties(null, 2);
+ //This function accepts a guest_id, limits the properties to 10 and returns a promise. The promise should resolve reservations for that user. Use the All My Reservations query that you made in a previous assignments.
+ const queryString = `
+  SELECT *
+  FROM reservations
+  JOIN users ON guest_id = users.id
+  JOIN properties ON property_id = properties.id
+  WHERE guest_id = $1
+  AND end_date < now()::date
+  LIMIT $2`;
+ return pool
+    .query(queryString, [guest_id, limit])
+    .then((res) => res.rows
+      // console.log(res.rows)
+    )
+    .catch((err) => console.error("eror:", err));
 };
 exports.getAllReservations = getAllReservations;
 
@@ -102,9 +114,10 @@ const getAllProperties = function (options, limit = 10) {
   `;
 
   return pool.query(queryString, [limit])
-  .then((res) => {
+  .then((res) => 
     // console.log(res.rows)
-    res.rows})
+    res.rows
+    )
 };
 
 exports.getAllProperties = getAllProperties;
